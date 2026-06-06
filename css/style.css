@@ -461,3 +461,135 @@ input[type="text"].full-width {
   color: #a0a0b0;
   font-size: 14px;
 }
+
+.form-row select {
+  background: #1e1e28;
+  border: 1px solid #2e2e3a;
+  border-radius: 5px;
+  padding: 8px 10px;
+  color: #e8e8ea;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.form-row select:focus {
+  outline: none;
+  border-color: #4ade80;
+}
+
+.compare-preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.compare-preset-row label {
+  font-size: 12px;
+  color: #a0a0b0;
+  flex-shrink: 0;
+}
+
+.compare-preset-row select {
+  flex: 1;
+  background: #1e1e28;
+  border: 1px solid #2e2e3a;
+  border-radius: 5px;
+  padding: 6px 8px;
+  color: #e8e8ea;
+  font-size: 12px;
+}
+
+.viewport.compare-mode {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+}
+
+.viewport.compare-mode.count-2 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.viewport.compare-mode.count-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.viewport.compare-mode.count-4 {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.compare-viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #0a0a0f;
+}
+
+.compare-viewport canvas {
+  display: block;
+}
+
+.compare-label {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(20, 20, 26, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 6px 12px;
+  border-radius: 16px;
+  border: 1px solid #2a2a34;
+  font-size: 11px;
+  color: #c8c8d0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.gif-recording-overlay {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.recording-dot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.growth-label {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(74, 222, 128, 0.9);
+  color: #0a0a0f;
+  padding: 6px 16px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 10;
+  pointer-events: none;
+}

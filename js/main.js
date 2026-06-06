@@ -1,6 +1,6 @@
 import { SceneManager } from './scene.js';
 import { OBJExporter } from './objExporter.js';
-import { getPreset, getDefaultPreset, getAllPresetNames } from './presets.js';
+import { getPreset, getDefaultPreset, getAllPresetNames, PRESETS } from './presets.js';
 
 class App {
   constructor() {
@@ -9,6 +9,11 @@ class App {
     this.debounceTimer = null;
     this.worker = null;
     this.config = this.createDefaultConfig();
+    this.growthSpeed = 1.5;
+    this.compareEnabled = false;
+    this.compareCount = 2;
+    this.comparePresets = ['binary-tree', 'fern', 'pythagoras', 'koch'];
+    this.pendingCompareGenerations = 0;
     this.init();
   }
 
@@ -87,10 +92,51 @@ class App {
       copyUrl: document.getElementById('copy-url'),
       statusText: document.getElementById('status-text'),
       stringLength: document.getElementById('string-length'),
-      presetBtns: document.querySelectorAll('.preset-btn')
+      presetBtns: document.querySelectorAll('.preset-btn'),
+
+      startGrowth: document.getElementById('start-growth'),
+      stopGrowth: document.getElementById('stop-growth'),
+      growthSpeed: document.getElementById('growth-speed'),
+      growthSpeedValue: document.getElementById('growth-speed-value'),
+      currentIteration: document.getElementById('current-iteration'),
+
+      toggleCompare: document.getElementById('toggle-compare'),
+      compareOptions: document.getElementById('compare-options'),
+      compareCount: document.getElementById('compare-count'),
+      comparePresets: document.getElementById('compare-presets'),
+      comparePresetSelects: document.querySelectorAll('.compare-preset-select'),
+
+      seasonSelect: document.getElementById('season-select'),
+
+      windStrength: document.getElementById('wind-strength'),
+      windStrengthValue: document.getElementById('wind-strength-value'),
+      windDirection: document.getElementById('wind-direction'),
+
+      screenshot6Views: document.getElementById('screenshot-6views'),
+      recordGif: document.getElementById('record-gif'),
+      gifProgressRow: document.getElementById('gif-progress-row'),
+      gifProgress: document.getElementById('gif-progress'),
+      gifProgressValue: document.getElementById('gif-progress-value')
     };
 
+    this.populatePresetSelects();
     this.bindEvents();
+  }
+
+  populatePresetSelects() {
+    const presetNames = getAllPresetNames();
+    this.ui.comparePresetSelects.forEach((select, index) => {
+      select.innerHTML = '';
+      presetNames.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = PRESETS[name].name;
+        if (this.comparePresets[index] === name) {
+          option.selected = true;
+        }
+        select.appendChild(option);
+      });
+    });
   }
 
   bindEvents() {
@@ -158,6 +204,47 @@ class App {
         this.generate();
       });
     });
+
+    this.ui.startGrowth.addEventListener('click', () => this.startGrowthAnimation());
+    this.ui.stopGrowth.addEventListener('click', () => this.stopGrowthAnimation());
+    this.ui.growthSpeed.addEventListener('input', (e) => {
+      this.growthSpeed = parseFloat(e.target.value);
+      this.ui.growthSpeedValue.textContent = this.growthSpeed.toFixed(1);
+    });
+
+    this.ui.toggleCompare.addEventListener('click', () => this.toggleCompareMode());
+    this.ui.compareCount.addEventListener('change', (e) => {
+      this.compareCount = parseInt(e.target.value);
+      this.updateComparePresetRows();
+      if (this.compareEnabled) {
+        this.updateCompareMode();
+      }
+    });
+    this.ui.comparePresetSelects.forEach(select => {
+      select.addEventListener('change', (e) => {
+        const index = parseInt(e.target.dataset.index);
+        this.comparePresets[index] = e.target.value;
+        if (this.compareEnabled) {
+          this.generateComparePreset(index);
+        }
+      });
+    });
+
+    this.ui.seasonSelect.addEventListener('change', (e) => {
+      this.sceneManager.setSeason(e.target.value);
+    });
+
+    this.ui.windStrength.addEventListener('input', (e) => {
+      const strength = parseFloat(e.target.value);
+      this.ui.windStrengthValue.textContent = strength.toFixed(1);
+      this.sceneManager.setWind(strength, this.ui.windDirection.value);
+    });
+    this.ui.windDirection.addEventListener('change', (e) => {
+      this.sceneManager.setWind(parseFloat(this.ui.windStrength.value), e.target.value);
+    });
+
+    this.ui.screenshot6Views.addEventListener('click', () => this.capture6Views());
+    this.ui.recordGif.addEventListener('click', () => this.recordGif());
   }
 
   addRule(ruleData) {
@@ -286,6 +373,8 @@ class App {
   }
 
   generate() {
+    if (this.compareEnabled) return;
+
     this.currentTaskId++;
     const taskId = this.currentTaskId;
 
@@ -307,15 +396,198 @@ class App {
     });
   }
 
+  startGrowthAnimation() {
+    this.stopGrowthAnimation();
+    this.currentTaskId++;
+    const taskId = this.currentTaskId;
+
+    this.showLoading('预生成所有迭代...');
+    this.ui.currentIteration.textContent = `0 / ${this.config.iterations}`;
+
+    this.worker.postMessage({
+      type: 'generateAllIterations',
+      taskId,
+      data: { config: { ...this.config } }
+    });
+
+    this.growthTaskId = taskId;
+  }
+
+  stopGrowthAnimation() {
+    this.sceneManager.stopGrowthAnimation();
+    this.ui.currentIteration.textContent = `0 / ${this.config.iterations}`;
+    if (this.growthTaskId) {
+      this.worker.postMessage({
+        type: 'cancel',
+        taskId: this.growthTaskId
+      });
+    }
+  }
+
+  toggleCompareMode() {
+    this.compareEnabled = !this.compareEnabled;
+
+    if (this.compareEnabled) {
+      this.ui.toggleCompare.textContent = '关闭对比';
+      this.ui.toggleCompare.classList.remove('btn-secondary');
+      this.ui.compareOptions.style.display = 'flex';
+      this.ui.comparePresets.style.display = 'block';
+      this.updateCompareMode();
+    } else {
+      this.ui.toggleCompare.textContent = '开启对比';
+      this.ui.toggleCompare.classList.add('btn-secondary');
+      this.ui.compareOptions.style.display = 'none';
+      this.ui.comparePresets.style.display = 'none';
+      this.sceneManager.setCompareMode(false);
+      this.generate();
+    }
+  }
+
+  updateComparePresetRows() {
+    document.getElementById('compare-preset-2').style.display = this.compareCount >= 3 ? 'flex' : 'none';
+    document.getElementById('compare-preset-3').style.display = this.compareCount >= 4 ? 'flex' : 'none';
+  }
+
+  updateCompareMode() {
+    this.sceneManager.setCompareMode(
+      true,
+      this.compareCount,
+      this.comparePresets.slice(0, this.compareCount),
+      (presetName) => this.getPresetMeshData(presetName)
+    );
+
+    this.pendingCompareGenerations = this.compareCount;
+    for (let i = 0; i < this.compareCount; i++) {
+      this.generateComparePreset(i);
+    }
+  }
+
+  getPresetMeshData(presetName) {
+    const preset = getPreset(presetName);
+    return null;
+  }
+
+  generateComparePreset(index) {
+    const presetName = this.comparePresets[index];
+    const preset = getPreset(presetName);
+    const config = {
+      axiom: preset.axiom,
+      rules: [...preset.rules],
+      iterations: preset.iterations,
+      angle: preset.angle,
+      length: preset.length,
+      lengthDecay: preset.lengthDecay,
+      thickness: preset.thickness,
+      thicknessDecay: preset.thicknessDecay,
+      colorStem: preset.colorStem,
+      colorLeaf: preset.colorLeaf
+    };
+
+    this.currentTaskId++;
+    const taskId = this.currentTaskId;
+
+    this.worker.postMessage({
+      type: 'generate',
+      taskId,
+      data: { config, compareIndex: index }
+    });
+  }
+
+  async capture6Views() {
+    const btn = this.ui.screenshot6Views;
+    const originalText = btn.textContent;
+    btn.textContent = '生成中...';
+    btn.disabled = true;
+
+    try {
+      const dataUrl = await this.sceneManager.capture6Views();
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `lsystem-6views-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error('截图失败:', e);
+      alert('截图失败: ' + e.message);
+    }
+
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+
+  recordGif() {
+    if (this.sceneManager.isGifRecording) return;
+
+    const btn = this.ui.recordGif;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+
+    this.ui.gifProgressRow.style.display = 'flex';
+    this.ui.gifProgress.value = 0;
+    this.ui.gifProgressValue.textContent = '0%';
+
+    this.sceneManager.startGifRecording(6, 15, (progress, done) => {
+      this.ui.gifProgress.value = progress;
+      this.ui.gifProgressValue.textContent = `${progress}%`;
+
+      if (done) {
+        setTimeout(() => {
+          this.ui.gifProgressRow.style.display = 'none';
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 500);
+      }
+    });
+  }
+
   handleWorkerMessage(e) {
-    const { type, taskId, data, progress, message, error } = e.data;
+    const { type, taskId, data, progress, message, error, compareIndex } = e.data;
+
+    if (type === 'progress') {
+      if (message) {
+        document.getElementById('loading-text').textContent = message;
+      }
+      return;
+    }
+
+    if (this.growthTaskId && taskId === this.growthTaskId) {
+      if (type === 'allIterationsComplete') {
+        this.hideLoading();
+        this.sceneManager.startGrowthAnimation(
+          data.allMeshData,
+          this.growthSpeed,
+          (current, total, done) => {
+            this.ui.currentIteration.textContent = `${current} / ${total}`;
+            if (done) {
+              this.ui.statusText.className = 'ready';
+              this.ui.statusText.textContent = '生长完成';
+            }
+          }
+        );
+      } else if (type === 'cancelled') {
+        this.hideLoading();
+      }
+      return;
+    }
+
+    if (compareIndex !== undefined) {
+      if (type === 'complete') {
+        this.sceneManager.updateComparePreset(compareIndex, data.meshData);
+        this.pendingCompareGenerations--;
+        if (this.pendingCompareGenerations <= 0) {
+          this.ui.statusText.className = 'ready';
+          this.ui.statusText.textContent = '就绪';
+          this.hideLoading();
+        }
+      }
+      return;
+    }
 
     if (taskId !== this.currentTaskId) return;
 
-    if (type === 'progress') {
-      document.getElementById('loading-text').textContent = message;
-    } else if (type === 'complete') {
-      this.sceneManager.buildMesh(data.meshData);
+    if (type === 'complete') {
+      this.sceneManager.buildMesh(data.meshData, false);
       this.ui.statusText.className = 'ready';
       this.ui.statusText.textContent = '就绪';
       this.ui.stringLength.textContent = `字符串长度: ${data.stringLength} | 符号数: ${data.tokenCount}`;

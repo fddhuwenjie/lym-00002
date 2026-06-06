@@ -429,11 +429,12 @@ self.onmessage = function(e) {
     isCancelled = false;
 
     try {
-      const { config } = data;
+      const { config, upToIteration, compareIndex } = data;
+      const targetIterations = upToIteration !== undefined ? upToIteration : config.iterations;
       const lsystem = new LSystem({
         axiom: config.axiom,
         rules: config.rules,
-        iterations: config.iterations
+        iterations: targetIterations
       });
 
       const genResult = lsystem.generate((progress, current, total) => {
@@ -484,11 +485,74 @@ self.onmessage = function(e) {
         self.postMessage({
           type: 'complete',
           taskId,
+          compareIndex,
           data: {
             meshData,
             stringLength: genResult.string.length,
-            tokenCount: genResult.tokens.length
+            tokenCount: genResult.tokens.length,
+            iteration: targetIterations
           }
+        });
+      }
+    } catch (error) {
+      if (error.message === 'cancelled') {
+        self.postMessage({ type: 'cancelled', taskId });
+      } else {
+        self.postMessage({
+          type: 'error',
+          taskId,
+          error: error.message
+        });
+      }
+    }
+  }
+
+  if (type === 'generateAllIterations') {
+    currentTaskId = taskId;
+    isCancelled = false;
+
+    try {
+      const { config } = data;
+      const allMeshData = [];
+      const maxIterations = config.iterations;
+
+      for (let iter = 0; iter <= maxIterations; iter++) {
+        if (isCancelled) throw new Error('cancelled');
+
+        const lsystem = new LSystem({
+          axiom: config.axiom,
+          rules: config.rules,
+          iterations: iter
+        });
+
+        const genResult = lsystem.generate();
+        const turtle = new Turtle3D({
+          angle: config.angle,
+          length: config.length,
+          lengthDecay: config.lengthDecay,
+          thickness: config.thickness,
+          thicknessDecay: config.thicknessDecay,
+          colorStem: config.colorStem,
+          colorLeaf: config.colorLeaf
+        });
+
+        const meshData = turtle.interpret(genResult.tokens);
+        allMeshData.push(meshData);
+
+        self.postMessage({
+          type: 'progress',
+          taskId,
+          stage: 'generating_iterations',
+          progress: iter / maxIterations,
+          message: `预生成迭代 ${iter}/${maxIterations}`
+        });
+      }
+
+      if (!isCancelled) {
+        self.postMessage({
+          type: 'allIterationsComplete',
+          taskId,
+          data: { allMeshData, maxIterations }
         });
       }
     } catch (error) {

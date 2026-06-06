@@ -92,6 +92,112 @@
       </section>
 
       <section class="panel">
+        <div class="panel-header">
+          <h2>🌱 生长动画</h2>
+        </div>
+        <div class="btn-row">
+          <button id="start-growth" class="btn">▶ 开始生长</button>
+          <button id="stop-growth" class="btn btn-secondary">⏹ 停止</button>
+        </div>
+        <div class="form-row">
+          <label>生长速度</label>
+          <div class="slider-row">
+            <input type="range" id="growth-speed" min="0.5" max="3" step="0.1" value="1.5" />
+            <span id="growth-speed-value">1.5</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>当前迭代</label>
+          <span id="current-iteration">0 / 0</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>👥 对比模式</h2>
+        </div>
+        <div class="btn-row">
+          <button id="toggle-compare" class="btn btn-secondary">开启对比</button>
+        </div>
+        <div class="form-row" id="compare-options" style="display:none">
+          <label>对比数量</label>
+          <select id="compare-count">
+            <option value="2">2 个</option>
+            <option value="3">3 个</option>
+            <option value="4">4 个</option>
+          </select>
+        </div>
+        <div id="compare-presets" style="display:none; margin-top: 10px;">
+          <div class="compare-preset-row">
+            <label>预设 1</label>
+            <select class="compare-preset-select" data-index="0"></select>
+          </div>
+          <div class="compare-preset-row">
+            <label>预设 2</label>
+            <select class="compare-preset-select" data-index="1"></select>
+          </div>
+          <div class="compare-preset-row" id="compare-preset-2" style="display:none">
+            <label>预设 3</label>
+            <select class="compare-preset-select" data-index="2"></select>
+          </div>
+          <div class="compare-preset-row" id="compare-preset-3" style="display:none">
+            <label>预设 4</label>
+            <select class="compare-preset-select" data-index="3"></select>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>🍂 季节</h2>
+        <div class="form-row">
+          <label>选择季节</label>
+          <select id="season-select">
+            <option value="spring">🌸 春季</option>
+            <option value="summer" selected>☀️ 夏季</option>
+            <option value="autumn">🍁 秋季</option>
+            <option value="winter">❄️ 冬季</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>💨 风力</h2>
+        <div class="form-row">
+          <label>风力等级</label>
+          <div class="slider-row">
+            <input type="range" id="wind-strength" min="0" max="10" step="0.5" value="0" />
+            <span id="wind-strength-value">0</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>风向</label>
+          <select id="wind-direction">
+            <option value="x+">东 (+X)</option>
+            <option value="x-">西 (-X)</option>
+            <option value="z+" selected>南 (+Z)</option>
+            <option value="z-">北 (-Z)</option>
+          </select>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>📷 拍照导出</h2>
+        </div>
+        <div class="btn-row">
+          <button id="screenshot-6views" class="btn">6视角截图</button>
+          <button id="record-gif" class="btn">录制 GIF</button>
+        </div>
+        <div class="form-row" id="gif-progress-row" style="display:none">
+          <label>GIF进度</label>
+          <div class="slider-row">
+            <input type="range" id="gif-progress" min="0" max="100" value="0" disabled />
+            <span id="gif-progress-value">0%</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>导入 / 导出</h2>
         <div class="btn-row">
           <button id="export-obj" class="btn">导出 OBJ</button>
