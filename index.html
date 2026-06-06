@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>L-System 3D 分形生成器</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <header class="sidebar-header">
+        <h1>🌿 L-System 3D</h1>
+        <p class="subtitle">分形植物实时生成器</p>
+      </header>
+
+      <section class="panel">
+        <h2>预设</h2>
+        <div class="preset-grid">
+          <button class="preset-btn" data-preset="binary-tree">二叉树</button>
+          <button class="preset-btn" data-preset="pythagoras">毕达哥拉斯树</button>
+          <button class="preset-btn" data-preset="fern">蕨类</button>
+          <button class="preset-btn" data-preset="koch">Koch 曲线</button>
+          <button class="preset-btn" data-preset="dragon">龙曲线</button>
+          <button class="preset-btn" data-preset="sierpinski">Sierpinski</button>
+          <button class="preset-btn" data-preset="hilbert3d">Hilbert 3D</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>核心参数</h2>
+        <div class="form-row">
+          <label>迭代次数</label>
+          <div class="slider-row">
+            <input type="range" id="iterations" min="1" max="7" value="4" />
+            <span id="iterations-value">4</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>转角 (°)</label>
+          <input type="number" id="angle" value="25" step="0.5" min="0" max="180" />
+        </div>
+        <div class="form-row">
+          <label>初始长度</label>
+          <input type="number" id="length" value="1" step="0.1" min="0.1" />
+        </div>
+        <div class="form-row">
+          <label>长度衰减</label>
+          <input type="number" id="length-decay" value="0.7" step="0.01" min="0.1" max="1" />
+        </div>
+        <div class="form-row">
+          <label>初始粗细</label>
+          <input type="number" id="thickness" value="0.08" step="0.01" min="0.01" />
+        </div>
+        <div class="form-row">
+          <label>粗细衰减</label>
+          <input type="number" id="thickness-decay" value="0.7" step="0.01" min="0.1" max="1" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>公理</h2>
+        <input type="text" id="axiom" value="X" class="full-width" />
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>产生式规则</h2>
+          <button id="add-rule" class="icon-btn" title="添加规则">+</button>
+        </div>
+        <div id="rules-container"></div>
+      </section>
+
+      <section class="panel">
+        <h2>颜色</h2>
+        <div class="form-row">
+          <label>枝干颜色</label>
+          <input type="color" id="color-stem" value="#8B4513" />
+        </div>
+        <div class="form-row">
+          <label>叶子颜色</label>
+          <input type="color" id="color-leaf" value="#228B22" />
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>导入 / 导出</h2>
+        <div class="btn-row">
+          <button id="export-obj" class="btn">导出 OBJ</button>
+          <button id="export-json" class="btn">导出 JSON</button>
+          <button id="import-json" class="btn">导入 JSON</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" />
+        </div>
+        <div class="btn-row">
+          <button id="copy-url" class="btn btn-secondary">复制分享链接</button>
+        </div>
+      </section>
+
+      <footer class="sidebar-footer">
+        <div class="status">
+          <span id="status-text">就绪</span>
+          <span id="string-length"></span>
+        </div>
+      </footer>
+    </aside>
+
+    <main class="viewport">
+      <div id="canvas-container"></div>
+      <div class="controls-hint">
+        <span>🖱️ 左键旋转 | 滚轮缩放 | 右键平移</span>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

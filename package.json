@@ -1,0 +1,15 @@
+{
+  "name": "lsystem-3d-generator",
+  "version": "1.0.0",
+  "description": "L-System Fractal 3D Plant Generator",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 3002 -c-1"
+  },
+  "keywords": ["l-system", "fractal", "3d", "plant"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
