@@ -113,7 +113,7 @@ export class SceneManager {
 
     this.cylGeo = new THREE.CylinderGeometry(1, 1, 1, 8, 1);
     this.cylGeo.translate(0, 0.5, 0);
-    this.leafGeo = new THREE.ConeGeometry(0.3, 1, 4);
+    this.leafGeo = this.createLeafGeometry();
     this.leafGeo.translate(0, 0.5, 0);
 
     window.addEventListener('resize', () => this.onResize());
@@ -204,6 +204,36 @@ export class SceneManager {
     this.scene.add(gridHelper);
   }
 
+  createLeafGeometry() {
+    const shape = new THREE.Shape();
+    
+    const width = 0.4;
+    const height = 1.0;
+    
+    shape.moveTo(0, 0);
+    shape.quadraticCurveTo(width * 0.3, height * 0.15, width * 0.6, height * 0.3);
+    shape.quadraticCurveTo(width * 0.8, height * 0.5, width * 0.6, height * 0.7);
+    shape.quadraticCurveTo(width * 0.3, height * 0.9, 0, height);
+    shape.quadraticCurveTo(-width * 0.3, height * 0.9, -width * 0.6, height * 0.7);
+    shape.quadraticCurveTo(-width * 0.8, height * 0.5, -width * 0.6, height * 0.3);
+    shape.quadraticCurveTo(-width * 0.3, height * 0.15, 0, 0);
+
+    const extrudeSettings = {
+      depth: 0.02,
+      bevelEnabled: true,
+      bevelThickness: 0.01,
+      bevelSize: 0.01,
+      bevelSegments: 1,
+      curveSegments: 8
+    };
+
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.rotateX(-Math.PI / 2);
+    geometry.center();
+    
+    return geometry;
+  }
+
   hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -229,7 +259,8 @@ export class SceneManager {
         metalness: 0.0,
         flatShading: false,
         transparent: isLeaf,
-        opacity: isLeaf ? 0.95 : 1.0
+        opacity: isLeaf ? 0.95 : 1.0,
+        side: isLeaf ? THREE.DoubleSide : THREE.FrontSide
       });
       this.materials.set(key, mat);
     }
@@ -445,10 +476,10 @@ export class SceneManager {
 
         if (animateGrowth) {
           mesh.scale.set(0.001, 0.001, 0.001);
-          mesh.userData.targetScale = new THREE.Vector3(leaf.size * 0.5, leaf.size, leaf.size * 0.5);
+          mesh.userData.targetScale = new THREE.Vector3(leaf.size * 1.0, leaf.size * 1.5, leaf.size * 1.0);
           mesh.userData.growDelay = 0.5 + Math.random() * 0.3;
         } else {
-          mesh.scale.set(leaf.size * 0.5, leaf.size, leaf.size * 0.5);
+          mesh.scale.set(leaf.size * 1.0, leaf.size * 1.5, leaf.size * 1.0);
         }
 
         mesh.quaternion.set(leaf.quaternion.x, leaf.quaternion.y, leaf.quaternion.z, leaf.quaternion.w);
@@ -717,7 +748,7 @@ export class SceneManager {
         const mat = this.getMaterial(leafColor, true);
         const mesh = new THREE.Mesh(this.leafGeo.clone(), mat);
         mesh.position.set(leaf.position.x, leaf.position.y, leaf.position.z);
-        mesh.scale.set(leaf.size * 0.5, leaf.size, leaf.size * 0.5);
+        mesh.scale.set(leaf.size * 1.0, leaf.size * 1.5, leaf.size * 1.0);
         mesh.quaternion.set(leaf.quaternion.x, leaf.quaternion.y, leaf.quaternion.z, leaf.quaternion.w);
         mesh.castShadow = true;
         mesh.receiveShadow = true;
