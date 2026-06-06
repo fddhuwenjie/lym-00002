@@ -131,25 +131,22 @@ class Turtle3D {
 
   rotateYaw(angleDeg) {
     const angle = angleDeg * Math.PI / 180;
-    const up = new Vector3(0, 0, -1);
-    this.state.heading.applyToVector(up);
-    const q = new Quaternion().setFromAxisAngle(up.normalize(), angle);
+    const localUp = new Vector3(0, 0, -1);
+    const q = new Quaternion().setFromAxisAngle(localUp, angle);
     this.state.heading.multiply(q).normalize();
   }
 
   rotatePitch(angleDeg) {
     const angle = angleDeg * Math.PI / 180;
-    const right = new Vector3(1, 0, 0);
-    this.state.heading.applyToVector(right);
-    const q = new Quaternion().setFromAxisAngle(right.normalize(), angle);
+    const localRight = new Vector3(1, 0, 0);
+    const q = new Quaternion().setFromAxisAngle(localRight, angle);
     this.state.heading.multiply(q).normalize();
   }
 
   rotateRoll(angleDeg) {
     const angle = angleDeg * Math.PI / 180;
-    const forward = new Vector3(0, 1, 0);
-    this.state.heading.applyToVector(forward);
-    const q = new Quaternion().setFromAxisAngle(forward.normalize(), angle);
+    const localForward = new Vector3(0, 1, 0);
+    const q = new Quaternion().setFromAxisAngle(localForward, angle);
     this.state.heading.multiply(q).normalize();
   }
 

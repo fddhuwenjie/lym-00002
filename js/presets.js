@@ -19,7 +19,7 @@ export const PRESETS = {
   'pythagoras': {
     name: '毕达哥拉斯树',
     axiom: 'X',
-    angle: 40,
+    angle: 45,
     iterations: 4,
     length: 0.9,
     lengthDecay: 0.7,
@@ -28,7 +28,7 @@ export const PRESETS = {
     colorStem: '#654321',
     colorLeaf: '#32CD32',
     rules: [
-      { predecessor: 'X', successor: 'F[&+X][\\X][^-X][/X][&\\X][^/X]F%', probability: 1 },
+      { predecessor: 'X', successor: 'F[&+X][&-X][^+X][^-X][\\+X][\\-X][/+X][/-X]%', probability: 1 },
       { predecessor: 'F', successor: 'FF', probability: 1 }
     ]
   },
@@ -45,8 +45,8 @@ export const PRESETS = {
     colorStem: '#556B2F',
     colorLeaf: '#90EE90',
     rules: [
-      { predecessor: 'X', successor: 'F[&+X][^/X][&\\X][^-X]F%', probability: 0.7 },
-      { predecessor: 'X', successor: 'F[^+X][&/X][^\\X][&-X]F%', probability: 0.3 },
+      { predecessor: 'X', successor: 'F[&+X][&-X][^/X][^\\X]%', probability: 0.7 },
+      { predecessor: 'X', successor: 'F[^+X][^-X][&/X][&\\X]%', probability: 0.3 },
       { predecessor: 'F', successor: 'FF', probability: 1 }
     ]
   },
@@ -56,14 +56,14 @@ export const PRESETS = {
     axiom: 'F',
     angle: 60,
     iterations: 4,
-    length: 0.5,
+    length: 0.6,
     lengthDecay: 1,
     thickness: 0.05,
     thicknessDecay: 0.8,
     colorStem: '#1E90FF',
     colorLeaf: '#87CEFA',
     rules: [
-      { predecessor: 'F', successor: 'F+F&F-F^F\\F+F', probability: 1 }
+      { predecessor: 'F', successor: 'F+F&F-F^F\\F', probability: 1 }
     ]
   },
 
@@ -72,15 +72,15 @@ export const PRESETS = {
     axiom: 'FX',
     angle: 90,
     iterations: 7,
-    length: 0.3,
+    length: 0.35,
     lengthDecay: 1,
     thickness: 0.04,
     thicknessDecay: 0.9,
     colorStem: '#FF4500',
     colorLeaf: '#FF8C00',
     rules: [
-      { predecessor: 'X', successor: 'X+YF&+\\X+YF+', probability: 1 },
-      { predecessor: 'Y', successor: '-FX-Y^/-FX-Y', probability: 1 }
+      { predecessor: 'X', successor: 'X+YF&+X+YF+', probability: 1 },
+      { predecessor: 'Y', successor: '-FX-Y^-FX-Y', probability: 1 }
     ]
   },
 
@@ -96,8 +96,8 @@ export const PRESETS = {
     colorStem: '#9932CC',
     colorLeaf: '#DA70D6',
     rules: [
-      { predecessor: 'A', successor: 'B-A&B\\A-B&/A-B', probability: 1 },
-      { predecessor: 'B', successor: 'A+B^A/B+A^\\B+A', probability: 1 }
+      { predecessor: 'A', successor: 'B-A&B^A-B&A\\B/', probability: 1 },
+      { predecessor: 'B', successor: 'A+B+A\\A+B&/A-B', probability: 1 }
     ]
   },
 
@@ -106,15 +106,15 @@ export const PRESETS = {
     axiom: 'X',
     angle: 90,
     iterations: 3,
-    length: 0.8,
-    lengthDecay: 0.5,
+    length: 0.7,
+    lengthDecay: 1,
     thickness: 0.08,
-    thicknessDecay: 0.5,
+    thicknessDecay: 0.7,
     colorStem: '#FF1493',
     colorLeaf: '#FF69B4',
     rules: [
-      { predecessor: 'X', successor: '&F\\YF&+F^X-F^&X-F+YF^&+\\X^F+YF&X/', probability: 1 },
-      { predecessor: 'Y', successor: '^F/XF^-F&Y+F&^Y+F-XF&^-/Y^F-XF&Y\\', probability: 1 }
+      { predecessor: 'X', successor: '^F\\XF^F+FX-F^-F^&X-F^\\F+XF+F^X/', probability: 1 },
+      { predecessor: 'Y', successor: '&F/Y&F-FY+F&+F&^Y+F&/F-FY-F&Y\\', probability: 1 }
     ]
   }
 };
